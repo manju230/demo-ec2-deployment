@@ -23,6 +23,22 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 sh 'terraform plan -out=tfplan'
+                
+                // Clean readable output
+                sh 'terraform show -no-color tfplan > plan.txt'
+            }
+        }
+
+        stage('Archive Plan') {
+            steps {
+                archiveArtifacts artifacts: 'plan.txt', fingerprint: true
+            }
+        }
+
+        // Optional approval step
+        stage('Approval') {
+            steps {
+                input message: 'Approve Terraform Apply?', ok: 'Approve'
             }
         }
 
