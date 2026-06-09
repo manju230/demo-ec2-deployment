@@ -8,15 +8,9 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Develop Branch') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Debug Branch') {
-            steps {
-                sh 'echo Running on branch: $BRANCH_NAME'
+                git branch: 'develop', url: 'https://github.com/manju230/demo-ec2-deployment.git'
             }
         }
 
@@ -27,27 +21,12 @@ pipeline {
         }
 
         stage('Terraform Plan') {
-            when {
-                branch 'develop'
-            }
             steps {
                 sh 'terraform plan -out=tfplan'
             }
         }
 
-        stage('Approval') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                input message: 'Approve Terraform Apply?', ok: 'Yes'
-            }
-        }
-
         stage('Terraform Apply') {
-            when {
-                branch 'develop'
-            }
             steps {
                 sh 'terraform apply -auto-approve tfplan'
             }
