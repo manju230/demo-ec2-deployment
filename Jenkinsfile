@@ -16,15 +16,16 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                sh 'terraform init -no-color'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan -out=tfplan'
-                
-                // Clean readable output
+                // Clean console output
+                sh 'terraform plan -no-color -out=tfplan | tee plan.log'
+
+                // Proper structured output
                 sh 'terraform show -no-color tfplan > plan.txt'
             }
         }
@@ -35,7 +36,6 @@ pipeline {
             }
         }
 
-        // Optional approval step
         stage('Approval') {
             steps {
                 input message: 'Approve Terraform Apply?', ok: 'Approve'
@@ -44,7 +44,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                sh 'terraform apply -auto-approve tfplan'
+                sh 'terraform apply -no-color -auto-approve tfplan'
             }
         }
 
